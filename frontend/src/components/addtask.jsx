@@ -3,21 +3,22 @@ import { Input } from "../components/ui/input";
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import axios from 'axios';
+import api from '@/lib/axios';
 import { toast } from 'sonner';
 const AddTask = ({ handleAddNewTask }) => {
     const [newTaskTitle, setNewTaskTitle] = useState("");
     const handleAddTask = async () => {
         if (newTaskTitle.trim()) {
             try {
-                await axios.post('http://localhost:3007/api/tasks', { title: newTaskTitle });
-                toast.success(`nhiem vụ "${newTaskTitle}" đã được thêm thành công!`);
+                await api.post('/tasks', { title: newTaskTitle });
+
+                toast.success(`Nhiệm vụ "${newTaskTitle}" đã được thêm thành công!`);
                 setNewTaskTitle("");
                 handleAddNewTask();
             } catch (error) {
                 console.error(`Error adding task "${newTaskTitle}":`, error);
-                toast.error(`An error occurred while adding the task "${newTaskTitle}". Please try again later.`);
+                toast.error(`Lỗi khi thêm nhiệm vụ "${newTaskTitle}"`);
             }
-            setNewTaskTitle("");
         } else {
             toast.error("Vui lòng nhập tiêu đề nhiệm vụ trước khi thêm.");
         }
