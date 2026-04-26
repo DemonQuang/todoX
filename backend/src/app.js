@@ -2,7 +2,7 @@ import express from 'express';
 import taskRoutes from './route/taskRoute.js';
 import connectDB from './config/db.js';
 import dotenv from 'dotenv';
-import cors from 'cors';
+import cors from "cors";
 import path from 'path';
 dotenv.config();
 
@@ -14,7 +14,8 @@ app.use(express.json());
 
 if (process.env.NODE_ENV !== "production") {
     app.use(cors({
-        origin: "http://localhost:5173"
+        origin: ["http://localhost:5173", "https://qtodox.onrender.com"],
+        credentials: true
     }));
 }
 
