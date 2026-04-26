@@ -1,10 +1,12 @@
 import axios from "axios";
 
 const BASE_URL =
-    import.meta.env.MODE === "/api";
+    import.meta.env.MODE === "development"
+        ? "http://localhost:3007/api"
+        : "/api";
 
 const api = axios.create({
-    baseURL: "/api"
+    baseURL: BASE_URL,
 });
 
 export default api;
