@@ -1,0 +1,22 @@
+{
+  "name": "todox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --prefix fe && npm install --prefix be && npm run build --prefix fe && npm run build --prefix be",
+    "start": "npm run start --prefix be"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DemonQuang/todoX.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DemonQuang/todoX/issues"
+  },
+  "homepage": "https://github.com/DemonQuang/todoX#readme"
+}
