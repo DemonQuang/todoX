@@ -2,7 +2,7 @@
 import React from 'react'
 import EmtryState from './emtryState'
 import TCard from './card'
-const TaskList = ({ filtertasks, filter, handleTaskChanged }) => {
+const TaskList = ({ filtertasks, filter, handleTaskChange }) => {
     if (!filtertasks || filtertasks.length === 0) {
         return <EmtryState filter={filter} />
     }
@@ -14,7 +14,7 @@ const TaskList = ({ filtertasks, filter, handleTaskChanged }) => {
                     key={task._id ?? index}
                     task={task}
                     index={index}
-                    handleTaskChange={handleTaskChanged}
+                    handleTaskChange={handleTaskChange}
                 />
             ))}
 
