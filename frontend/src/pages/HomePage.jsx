@@ -103,7 +103,7 @@ const HomePage = () => {
                     />
                     {/* <TaskList /> */}
                     <TaskList filtertasks={visibleTasks} filter={filter}
-                        handleTaskChanged={handletaskchange} />
+                        handleTaskChange={handletaskchange} />
 
                     {/* <TaskListPagination /> */}
                     <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
