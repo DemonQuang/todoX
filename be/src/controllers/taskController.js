@@ -1,26 +1,75 @@
 import Task from "../models/task.js";
 
 const getAllTasks = async (req, res) => {
+    const { filter = 'today' } = req.query;
+    const now = new Date();
+
+    let startDate = null;
+    let endDate = null;
+
+    switch (filter) {
+        case "today":
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            break;
+
+        case "thisWeek":
+            const day = now.getDay() || 7; // CN = 7
+            const monday = now.getDate() - day + 1;
+
+            startDate = new Date(now.getFullYear(), now.getMonth(), monday);
+            endDate = new Date(now.getFullYear(), now.getMonth(), monday + 7);
+            break;
+
+        case "thisMonth":
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+            break;
+
+        case "all":
+        default:
+            startDate = null;
+            endDate = null;
+    }
+
+    // ✅ Query chuẩn
+    let query = {};
+    if (startDate && endDate) {
+        query.createdAt = {
+            $gte: startDate,
+            $lt: endDate
+        };
+    }
+
     try {
         const result = await Task.aggregate([
+            { $match: query },
             {
                 $facet: {
                     tasks: [{ $sort: { createdAt: -1 } }],
-                    activeCount: [{ $match: { status: "active" } }, { $count: "count" }],
-                    completedCount: [{ $match: { status: "completed" } }, { $count: "count" }]
+                    activeCount: [
+                        { $match: { status: "active" } },
+                        { $count: "count" }
+                    ],
+                    completedCount: [
+                        { $match: { status: "completed" } },
+                        { $count: "count" }
+                    ]
                 }
             }
         ]);
+
         const tasks = result[0].tasks;
         const activeCount = result[0].activeCount[0]?.count || 0;
         const completedCount = result[0].completedCount[0]?.count || 0;
+
         res.json({ tasks, activeCount, completedCount });
 
     } catch (error) {
         console.error('Error fetching tasks:', error);
         res.status(500).json({ message: 'Server error' });
     }
-}
+};
 
 const createTask = async (req, res) => {
     try {
@@ -41,7 +90,7 @@ const updateTask = async (req, res) => {
         const updatedTask = await Task.findByIdAndUpdate(
             req.params.id,
             { title, status, completedAt },
-            { new: true }
+            { returnDocument: 'after' }
         );
         if (!updatedTask) {
             return res.status(404).json({ message: 'Task not found' });

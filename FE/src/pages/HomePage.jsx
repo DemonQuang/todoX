@@ -10,28 +10,35 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useEffect } from 'react'
 import api from '@/lib/axios'
+import { visibilityOptions } from '@/lib/data'
 
 const HomePage = () => {
     const [tasksBuffer, setTasksBuffer] = useState([]);
     const [activeTasksCount, setActiveTasksCount] = useState(0);
     const [completedTasksCount, setCompletedTasksCount] = useState(0);
     const [filter, setFilter] = useState("all");
-
+    const [page, setPage] = useState(1);
+    const [dateFilter, setDateFilter] = useState("today");
     useEffect(() => {
         fetchTasks();
-    }, []);
+    }, [dateFilter]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [filter, dateFilter]);
 
     const fetchTasks = async () => {
         try {
-            const res = await api.get('/tasks');
+            const res = await api.get(`/tasks?filter=${dateFilter}`);
             setTasksBuffer(res.data.tasks);
             setActiveTasksCount(res.data.activeCount);
             setCompletedTasksCount(res.data.completedCount);
         } catch (error) {
             console.error('Error fetching tasks:', error);
-            toast.error('An error occurred while fetching tasks. Please try again later.');
+            toast.error('Lỗi khi tải dữ liệu');
         }
     };
+
     const filteredTasks = tasksBuffer.filter((task) => {
         switch (filter) {
             case "active":
@@ -42,6 +49,28 @@ const HomePage = () => {
                 return true;
         }
     });
+
+    const visibleTasks = filteredTasks.slice((page - 1) * visibilityOptions, page * visibilityOptions);
+    if (visibleTasks.length === 0 && page > 1) {
+        setPage(page - 1);
+    }
+    const totalPages = Math.ceil(filteredTasks.length / visibilityOptions);
+
+    const handleNext = () => {
+        if (page < totalPages) {
+            setPage((prevPage) => prevPage + 1);
+        }
+    };
+
+    const handlePrev = () => {
+        if (page > 1) {
+            setPage((prevPage) => prevPage - 1);
+        }
+    };
+
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+    }
 
     const handletaskchange = () => {
         fetchTasks();
@@ -73,13 +102,20 @@ const HomePage = () => {
                         completedCount={completedTasksCount}
                     />
                     {/* <TaskList /> */}
-                    <TaskList filtertasks={filteredTasks} filter={filter}
+                    <TaskList filtertasks={visibleTasks} filter={filter}
                         handleTaskChanged={handletaskchange} />
 
                     {/* <TaskListPagination /> */}
                     <div className="flex flex-col items-center justify-center gap-6 sm:flex-row">
-                        <TaskListPagination />
-                        <DateTime />
+                        <TaskListPagination
+                            handleNext={handleNext}
+                            handlePrev={handlePrev}
+                            Page={page}
+                            totalPages={totalPages}
+                            handlePageChange={handlePageChange}
+                        />
+
+                        <DateTime dateFilter={dateFilter} setDateFilter={setDateFilter} />
                     </div>
 
                     {/* <Footer /> */}
